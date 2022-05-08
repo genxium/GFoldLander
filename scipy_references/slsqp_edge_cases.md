@@ -1,0 +1,38 @@
+The following sample data is provided to verify cross-platform determinism.
+
+```
+ 2022-03-04 21:47:51,123 [Dummy-1     ] [WARNI]
+Failed to solve SLSQP for nowPos=LPoint3f(-24.4815, -1.65037, 14.3331), nowLinearVel=LVector3f(-3.66382, -2.07968, -2.35552), nowLogm=7.196202205479137, nowQuat=0.999987 + -0.00220578i + 0.00460243j + -4.17549e-06k, omegaInWorld=LVector3f(-0.0195605, 0.0206632, 5.67385e-05)
+        because Positive directional derivative for linesearch
+initGuess=[1638.9786611420866, 8290.854967080437, 13380.293010861336, 6726.570027384108, 1e-08, 698.7238124999999, 5766.561692372772, 698.7238124999999]
+targetTorqueAndCogForceInBody=[186.5841064453125, -289.7248840332031, 0.052488625049591064, -11960.6767578125, -6669.8388671875, 5096.75732421875]
+minimizerMaxcv=1328.5598411078822
+
+ 2022-03-04 21:47:51,288 [Dummy-1     ] [WARNI]
+Failed to solve SLSQP for nowPos=LPoint3f(-24.6553, -1.74897, 14.2219), nowLinearVel=LVector3f(-3.12289, -1.76949, -1.97836), nowLogm=7.194106126360036, nowQuat=0.999983 + -0.00273408i + 0.00509099j + -2.05133e-06k, omegaInWorld=LVector3f(-0.0233523, 0.0162379, 0.000295351)
+        because Positive directional derivative for linesearch
+initGuess=[1e-08, 7391.853616375523, 13065.808593895923, 5673.452830701532, 1e-08, 1e-08, 6417.256749498171, 1e-08]
+targetTorqueAndCogForceInBody=[224.93890380859375, -270.82757568359375, -0.4036960303783417, -14826.7734375, -8321.2373046875, 2961.742919921875]
+minimizerMaxcv=4780.176113486587
+
+ 2022-03-04 21:47:51,293 [Dummy-1     ] [WARNI]
+Failed to solve SLSQP for nowPos=LPoint3f(-25.1031, -2.00204, 13.9447), nowLinearVel=LVector3f(-2.32591, -1.3099, -1.39759), nowLogm=7.187973631161181, nowQuat=0.999979 + -0.00435856i + 0.0047554j + 3.26969e-05k, omegaInWorld=LVector3f(-0.0113693, -0.0332759, 0.000793108)
+        because Positive directional derivative for linesearch
+initGuess=[1e-08, 7394.073041189588, 13076.16225303451, 5673.546274322933, 1e-08, 1e-08, 6418.395858386332, 1e-08]
+targetTorqueAndCogForceInBody=[187.85235595703125, 104.862548828125, -1.2225830554962158, -21503.955078125, -12083.1806640625, 0.0]
+minimizerMaxcv=12712.813750942389
+
+ 2022-03-04 21:47:51,303 [Dummy-1     ] [WARNI]
+Failed to solve SLSQP for nowPos=LPoint3f(-25.1031, -2.00204, 13.9447), nowLinearVel=LVector3f(-2.32591, -1.3099, -1.39759), nowLogm=7.187973631161181, nowQuat=0.999979 + -0.00435856i + 0.0047554j + 3.26969e-05k, omegaInWorld=LVector3f(-0.0113693, -0.0332759, 0.000793108)
+        because Positive directional derivative for linesearch
+initGuess=[1e-08, 7394.0730425818865, 13076.162255517538, 5673.546275408473, 1e-08, 1e-08, 6418.39585911186, 1e-08]
+targetTorqueAndCogForceInBody=[187.85235595703125, 104.862548828125, -1.2225830554962158, -21504.94921875, -12083.640625, 0.0]
+minimizerMaxcv=12709.596396635277
+
+ 2022-03-04 21:47:51,313 [Dummy-1     ] [WARNI]
+Failed to solve SLSQP for nowPos=LPoint3f(-25.1425, -2.02426, 13.921), nowLinearVel=LVector3f(-2.29116, -1.28954, -1.3704), nowLogm=7.187347025366227, nowQuat=0.99998 + -0.00445438i + 0.0044709j + 3.77604e-05k, omegaInWorld=LVector3f(-0.00925598, -0.0395084, 0.000878996)
+        because Positive directional derivative for linesearch
+initGuess=[1e-08, 7394.716196779893, 13081.289051279002, 5672.928328234063, 1e-08, 1e-08, 6419.61425443377, 1e-08]
+targetTorqueAndCogForceInBody=[176.4736785888672, 158.97349548339844, -1.3940608501434326, -21566.35546875, -12121.62109375, 0.0]
+minimizerMaxcv=12764.972487043688
+```

@@ -1,0 +1,9 @@
+# OSX
+.DS_Store
+
+# LaTeX outputs.
+*.pdf
+*.out
+*.aux
+*.log
+*.bib
