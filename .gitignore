@@ -39,3 +39,5 @@ out/*
 **/*.blend1
 **/*.stats
 **/*.hprof
+**/output
+**/output/*
