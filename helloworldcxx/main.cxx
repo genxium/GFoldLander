@@ -1,19 +1,29 @@
 #include "pandaFramework.h"
 #include "pandaSystem.h"
 
+int const G = 9.83;
+double const EPSL = 1e-5;
+double const EPSH = 1e-8;
+int const GFOLD_FRAME_INVALID = -1;
+
 int main(int argc, char *argv[]) {
-  // Open a new window framework
+  // Load the window and set its title.
   PandaFramework framework;
   framework.open_framework(argc, argv);
-
-  // Set the window title and open the window
   framework.set_window_title("My Panda3D Window");
   WindowFramework *window = framework.open_window();
 
-  // Here is room for your own code
+  // Load the environment model.
+  NodePath scene = window->load_model(framework.get_models(), "models/environment");
+  // Reparent the model to render.
+  scene.reparent_to(window->get_render());
+  // Apply scale and position transforms to the model.
+  scene.set_scale(0.25f, 0.25f, 0.25f);
+  scene.set_pos(-8, 42, 0);
 
-  // Do the main loop, equal to run() in python
+  // Run the engine.
   framework.main_loop();
+  // Shut down the engine when done.
   framework.close_framework();
-  return (0);
+  return 0;
 }
