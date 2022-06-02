@@ -1,7 +1,7 @@
 #include "pandaFramework.h"
 #include "pandaSystem.h"
 
-int const G = 9.83;
+double const G = 9.83;
 double const EPSL = 1e-5;
 double const EPSH = 1e-8;
 int const GFOLD_FRAME_INVALID = -1;
