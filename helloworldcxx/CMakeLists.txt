@@ -36,13 +36,6 @@ link_directories(${P3D_LIB_PATH}) # set library search path
 add_executable(${TARGET_NAME} main.cxx)
 target_link_libraries(${TARGET_NAME} ${P3D_LIBS}) 
 
-add_custom_command(
-        TARGET ${TARGET_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E rm ${CMAKE_BINARY_DIR}/CMakeCache.txt         
-        COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/CMakeFiles         
-        COMMAND_EXPAND_LISTS
-)
-
 IF(APPLE)
 		# Debugging reference https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling
 		message(STATUS ">>> On APPLE, Adding @rpath=${P3D_LIB_PATH}")
