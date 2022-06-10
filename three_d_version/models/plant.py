@@ -206,7 +206,7 @@ class LunarLanderFuel:
         self.rho1 = 0.3 * (self.effective_mass() * gDuringFlight)
         self.rho2 = 1.0 * (self.effective_mass() * gDuringFlight)
         # Attach all displaying rocket parts to "self.physicsContainerNP", kindly note that all these parts were designed w.r.t. the origin of "self.simBodyNP"
-        #self.simBodyNP.reparentTo(self.physicsContainerNP) # Comment out this line to use only the dynamics of the body mesh without rendering the body
+        self.simBodyNP.reparentTo(self.physicsContainerNP) # Comment out this line to use only the dynamics of the body mesh without rendering the body
         for i, part in enumerate(self.simOtherPartsNPList):
            part.reparentTo(self.physicsContainerNP)
 
@@ -300,7 +300,7 @@ class LunarLanderFuel:
             world.attach(leg.node())
             world.attach(hinge)
 
-            #self.simLegNPList[i].reparentTo(leg)  # We reposition and reparent each "displaying leg" to the "rigid body leg" such that the "displaying leg" can be animated by the physics engine; comment out this line to use only the dynamics of the leg mesh without rendering
+            self.simLegNPList[i].reparentTo(leg)  # We reposition and reparent each "displaying leg" to the "rigid body leg" such that the "displaying leg" can be animated by the physics engine; comment out this line to use only the dynamics of the leg mesh without rendering
             self.simLegNPList[i].setPosHpr(frameB.getPos(), legAzimuthalOffsetWrtPhysicsContainer) # compensate for frameB position offset  
 
         self.gfoldFrameCnt = 0

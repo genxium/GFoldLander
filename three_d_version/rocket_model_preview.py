@@ -49,7 +49,7 @@ GFOLD_FRAME_INVALID = -1
 class Game(DirectObject):
 
     def __init__(self):
-        self.landerInitPos = Point3(-40.0, -10.0, 50.0)
+        self.landerInitPos = Point3(-35.0, -9.0, 5.0)
         self.camOffset = Vec3(10.0, -10.0, 10.0)
 
         base.enableParticles()
@@ -61,7 +61,7 @@ class Game(DirectObject):
 
         # Light
         alight = AmbientLight('ambientLight')
-        alight.setColor(Vec4(0.1, 0.1, 0.1, 1))
+        alight.setColor(Vec4(0.5, 0.5, 0.5, 1))
         alightNP = render.attachNewNode(alight)
 
         dlight = DirectionalLight('directionalLight')
@@ -161,7 +161,6 @@ class Game(DirectObject):
         if self.isLanded is True:
             return task.cont
 
-        """
         self.inContactLegs = set()
         result = self.world.contactTest(self.terrain.terrainRigidBodyNP.node())
         if 0 < result.getNumContacts():
@@ -177,7 +176,6 @@ class Game(DirectObject):
             self.lander.applyThrustsDryrun([0.0]*len(self.lander.enginePosList), GFOLD_FRAME_INVALID)
             self.lander.applyThrusts(simulationFixedDt) # To stop thrusting anim
             return task.cont
-        """
 
         base.cam.setPos(self.lander.physicsContainerNP.getPos() + self.camOffset)
         base.cam.lookAt(self.lander.physicsContainerNP)
@@ -226,7 +224,16 @@ class Game(DirectObject):
         self.world.setGravity(Vec3(0, 0, -g))
         self.world.setDebugNode(self.debugNP.node())
 
-        #self.terrain = Terrain(self.world, self.worldNP)
+        # Terrain
+        self.terrain = Terrain(self.world, self.worldNP)
+
+        landerCOGTargetXY = [-40.0, -10.0] # Somewhere I observed to be flat in the GeoMipTerrain
+        landerCOGOffsetZ = +0.8 # Estimated
+        landerCOGTargetZ = self.terrain.calcRectifiedZ(landerCOGTargetXY[0], landerCOGTargetXY[1])
+
+        landerCOGTargetZ += landerCOGOffsetZ
+        self.landerTargetPos = Point3(landerCOGTargetXY[0], landerCOGTargetXY[1], landerCOGTargetZ)
+        rootLogger.info(f'landerTargetPos = {self.landerTargetPos}')
         """
         [WARNING] Deliberately NOT using the methods below, because "bullet-contact-added & bullet-contact-destroyed" DOESN'T seem to be a pair like "onContactBegin & onContactEnd", see the "why" prints in these callbacks, they'll be fired often which is quite CONFUSING
         """
@@ -253,12 +260,19 @@ class Game(DirectObject):
                 markerNP.reparentTo(self.worldNP)
         """
 
+        # Load target marker
+        markerNP = loader.loadModel('models/flag.bam')
+        markerNP.setScale(1.0)
+        markerNP.setCollideMask(BitMask32.allOff())
+        markerNP.setPos(self.landerTargetPos)
+        markerNP.reparentTo(self.worldNP)
+
         # Lander (dynamic)
         self.lander = LunarLanderFuel(withNozzleImpluseToCOG=False, withNozzleAngleConstraint=False, withFuelTank=True)
         #initMass = 2375.60
         initMass = 23.7560
         self.lander.setup(self.world, self.worldNP, initMass, self.landerInitPos, self.landerInitPos, BitMask32(0x10), 9.80665)
-        self.lander.physicsContainerNP.setHpr(Vec3(10.0, 0.0, 0.0))
+        self.lander.physicsContainerNP.setHpr(Vec3(0.0, 30.0, 0.0))
         self.uniformFmagNotch = 100.0
         self.uniformFmagMax = self.lander.initialMass*abs(g)
 
