@@ -40,8 +40,8 @@ from models.wind import Wind
 from scipy.optimize import fsolve, minimize, Bounds, LinearConstraint
 import cvxpy as opt
 
-# g = 0.0
-g = 9.83
+g = 0.0
+#g = 9.83
 epsl = 1e-5
 epsh = 1e-8
 GFOLD_FRAME_INVALID = -1
@@ -49,11 +49,11 @@ GFOLD_FRAME_INVALID = -1
 class Game(DirectObject):
 
     def __init__(self):
-        self.landerInitPos = Point3(-40.0, -10.0, 5.0)
-        self.camOffset = Vec3(20.0, -20.0, 20.0)
+        self.landerInitPos = Point3(-40.0, -10.0, 50.0)
+        self.camOffset = Vec3(10.0, -10.0, 10.0)
 
         base.enableParticles()
-        base.setBackgroundColor(0.1, 0.1, 0.8, 1)
+        base.setBackgroundColor(0.8, 0.8, 0.8, 1)
         base.setFrameRateMeter(True)
 
         base.cam.setPos(self.landerInitPos + self.camOffset)
@@ -61,7 +61,7 @@ class Game(DirectObject):
 
         # Light
         alight = AmbientLight('ambientLight')
-        alight.setColor(Vec4(0.5, 0.5, 0.5, 1))
+        alight.setColor(Vec4(0.1, 0.1, 0.1, 1))
         alightNP = render.attachNewNode(alight)
 
         dlight = DirectionalLight('directionalLight')
@@ -161,6 +161,7 @@ class Game(DirectObject):
         if self.isLanded is True:
             return task.cont
 
+        """
         self.inContactLegs = set()
         result = self.world.contactTest(self.terrain.terrainRigidBodyNP.node())
         if 0 < result.getNumContacts():
@@ -176,6 +177,7 @@ class Game(DirectObject):
             self.lander.applyThrustsDryrun([0.0]*len(self.lander.enginePosList), GFOLD_FRAME_INVALID)
             self.lander.applyThrusts(simulationFixedDt) # To stop thrusting anim
             return task.cont
+        """
 
         base.cam.setPos(self.lander.physicsContainerNP.getPos() + self.camOffset)
         base.cam.lookAt(self.lander.physicsContainerNP)
@@ -208,9 +210,9 @@ class Game(DirectObject):
         self.osdNode.setCardAsMargin(0, 0, 0, 0)
         self.osdNode.setCardDecal(True)
         self.osdNode.setAlign(TextNode.ALeft)
-        self.osdNP = base.a2dTopLeft.attachNewNode(self.osdNode)
-        self.osdNP.setScale(0.05)
-        self.osdNP.setPos(Point3(0.0, 0.0, -0.05)) # Only x-axis and z-axis are meaningful and the range should be [-1.0, +1.0]
+        #self.osdNP = base.a2dTopLeft.attachNewNode(self.osdNode)
+        #self.osdNP.setScale(0.05)
+        #self.osdNP.setPos(Point3(0.0, 0.0, -0.05)) # Only x-axis and z-axis are meaningful and the range should be [-1.0, +1.0]
 
         # World
         self.debugNP = self.worldNP.attachNewNode(BulletDebugNode('Debug'))
@@ -218,13 +220,13 @@ class Game(DirectObject):
         self.debugNP.node().showConstraints(True)
         self.debugNP.node().showBoundingBoxes(False)
         self.debugNP.node().showNormals(True)
-        #self.debugNP.show()
+        self.debugNP.show()
 
         self.world = BulletWorld()
         self.world.setGravity(Vec3(0, 0, -g))
         self.world.setDebugNode(self.debugNP.node())
 
-        self.terrain = Terrain(self.world, self.worldNP)
+        #self.terrain = Terrain(self.world, self.worldNP)
         """
         [WARNING] Deliberately NOT using the methods below, because "bullet-contact-added & bullet-contact-destroyed" DOESN'T seem to be a pair like "onContactBegin & onContactEnd", see the "why" prints in these callbacks, they'll be fired often which is quite CONFUSING
         """
@@ -236,6 +238,7 @@ class Game(DirectObject):
         self.wind = Wind()    
 
         # Load markers around the initial position of the rocket to see whether "getElevation" is working as expected
+        """
         marker1DCount = 10
         markerStep = 0.5
         for i in range(marker1DCount):
@@ -248,12 +251,14 @@ class Game(DirectObject):
                 markerNP.setPos(markerX, markerY, markerZ)
                 markerNP.setCollideMask(BitMask32.allOff())
                 markerNP.reparentTo(self.worldNP)
+        """
 
         # Lander (dynamic)
         self.lander = LunarLanderFuel(withNozzleImpluseToCOG=False, withNozzleAngleConstraint=False, withFuelTank=True)
         #initMass = 2375.60
         initMass = 23.7560
         self.lander.setup(self.world, self.worldNP, initMass, self.landerInitPos, self.landerInitPos, BitMask32(0x10), 9.80665)
+        self.lander.physicsContainerNP.setHpr(Vec3(10.0, 0.0, 0.0))
         self.uniformFmagNotch = 100.0
         self.uniformFmagMax = self.lander.initialMass*abs(g)
 
