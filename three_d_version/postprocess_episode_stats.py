@@ -24,172 +24,180 @@ import matplotlib.pyplot as plt
 from control_and_ai import error_stats
 import numpy
 import pathlib
+from scipy.stats import pearsonr
 
 # Get the list of all files and directories
 dirpath = CWD + '/episode_stats'
- 
-nowEp = 0
-tfMeasuredTot, tfGuidanceTot, rmseMTot, rmseRTot, rmseRDotTot, rmseQTot = 0., 0., 0., 0., 0., 0.
-for filename in os.listdir(dirpath): 
-    ext = pathlib.Path(filename).suffix
-    if '.stats' != ext:
-        continue
-    filepath = dirpath + f'/{filename}' 
-    statsFile = open(filepath, 'rb')
-    data = pickle.load(statsFile)
-    statsFile.close()
 
-    tfMeasured = data[0]
-    tfGuidance = data[1]
-    elapsedMsArr = data[2]
-    posArr = data[3] 
-    plannedPosArr = data[4] 
-    velArr = data[5] 
-    plannedVelArr = data[6] 
-    massArr = data[7] 
-    plannedMassArr = data[8] 
-    quatArr = data[9] 
-    globalDtArr = data[10]
-    maxcvArr = data[11]
-    #rootLogger.info(f'tfMeasured = {tfMeasured}')
-
-    # Remove the None elements
-    posArr = [f for i,f in enumerate(posArr) if elapsedMsArr[i] is not None]
-    plannedPosArr = [f for i,f in enumerate(plannedPosArr) if elapsedMsArr[i] is not None]
-    velArr = [f for i,f in enumerate(velArr) if elapsedMsArr[i] is not None]
-    plannedVelArr = [f for i,f in enumerate(plannedVelArr) if elapsedMsArr[i] is not None]
-    massArr = [f for i,f in enumerate(massArr) if elapsedMsArr[i] is not None]
-    plannedMassArr = [f for i,f in enumerate(plannedMassArr) if elapsedMsArr[i] is not None]
-
-    quatArr = [f for i,f in enumerate(quatArr) if elapsedMsArr[i] is not None]
-    globalDtArr = [f for i,f in enumerate(globalDtArr) if elapsedMsArr[i] is not None]
-    maxcvArr = [f for i,f in enumerate(maxcvArr) if elapsedMsArr[i] is not None]
-
-    elapsedMsArr = [f for f in elapsedMsArr if f is not None] 
-
-    massDtArr = []
-    for i,f in enumerate(massArr):
-        if i <= 0 or i >= len(massArr)-1:
+with open(f'{dirpath}/pearsonr.all', 'w') as pearsonrFile: 
+    nowEp = 0
+    tfMeasuredTot, tfGuidanceTot, rmseMTot, rmseRTot, rmseRDotTot, rmseQTot = 0., 0., 0., 0., 0., 0.
+    for filename in os.listdir(dirpath): 
+        ext = pathlib.Path(filename).suffix
+        if '.stats' != ext:
             continue
-        massDtArr.append((massArr[i+1]-massArr[i-1])/(globalDtArr[i]+globalDtArr[i+1]))   
+        filepath = dirpath + f'/{filename}' 
+        statsFile = open(filepath, 'rb')
+        data = pickle.load(statsFile)
+        statsFile.close()
 
-    plannedMassDtArr = []
-    for i,f in enumerate(plannedMassArr):
-        if i <= 0 or i >= len(plannedMassArr)-1:
-            continue
-        plannedMassDtArr.append((plannedMassArr[i+1]-plannedMassArr[i-1])/(globalDtArr[i]+globalDtArr[i+1]))   
+        tfMeasured = data[0]
+        tfGuidance = data[1]
+        elapsedMsArr = data[2]
+        posArr = data[3] 
+        plannedPosArr = data[4] 
+        velArr = data[5] 
+        plannedVelArr = data[6] 
+        massArr = data[7] 
+        plannedMassArr = data[8] 
+        quatArr = data[9] 
+        globalDtArr = data[10]
+        maxcvArr = data[11]
+        #rootLogger.info(f'tfMeasured = {tfMeasured}')
 
-    subplotIdx = 1
-    xdata = [f[0] for f in posArr] 
-    ydata = [f[1] for f in posArr]
-    zdata = [f[2] for f in posArr]
+        # Remove the None elements
+        posArr = [f for i,f in enumerate(posArr) if elapsedMsArr[i] is not None]
+        plannedPosArr = [f for i,f in enumerate(plannedPosArr) if elapsedMsArr[i] is not None]
+        velArr = [f for i,f in enumerate(velArr) if elapsedMsArr[i] is not None]
+        plannedVelArr = [f for i,f in enumerate(plannedVelArr) if elapsedMsArr[i] is not None]
+        massArr = [f for i,f in enumerate(massArr) if elapsedMsArr[i] is not None]
+        plannedMassArr = [f for i,f in enumerate(plannedMassArr) if elapsedMsArr[i] is not None]
 
-    plannedXdata = [f[0] for f in plannedPosArr] 
-    plannedYdata = [f[1] for f in plannedPosArr]
-    plannedZdata = [f[2] for f in plannedPosArr]
+        quatArr = [f for i,f in enumerate(quatArr) if elapsedMsArr[i] is not None]
+        globalDtArr = [f for i,f in enumerate(globalDtArr) if elapsedMsArr[i] is not None]
+        maxcvArr = [f if f else 0. for i,f in enumerate(maxcvArr) if elapsedMsArr[i] is not None]
 
-    dxdata = [f[0] for f in velArr] 
-    dydata = [f[1] for f in velArr]
-    dzdata = [f[2] for f in velArr]
+        elapsedMsArr = [f for f in elapsedMsArr if f is not None] 
 
-    plannedDxdata = [f[0] for f in plannedVelArr] 
-    plannedDydata = [f[1] for f in plannedVelArr]
-    plannedDzdata = [f[2] for f in plannedVelArr]
+        massDtArr = []
+        for i,f in enumerate(massArr):
+            if i <= 0 or i >= len(massArr)-1:
+                continue
+            massDtArr.append((massArr[i+1]-massArr[i-1])/(globalDtArr[i]+globalDtArr[i+1]))   
 
-    # We might show a mix of 2D and 3D subplots, see https://matplotlib.org/stable/gallery/mplot3d/subplot3d.html for more information.
-    fig = plt.figure(figsize=(12, 8))
-    figName = f'case_plot_{nowEp+1:02d}'
-    fig.canvas.manager.set_window_title(figName)
-    nRows, nCols = 3, 3
+        plannedMassDtArr = []
+        for i,f in enumerate(plannedMassArr):
+            if i <= 0 or i >= len(plannedMassArr)-1:
+                continue
+            plannedMassDtArr.append((plannedMassArr[i+1]-plannedMassArr[i-1])/(globalDtArr[i]+globalDtArr[i+1]))   
 
-    ## 3D quiver plotting
-    #attitudeArr = [f.getUp() for i,f in enumerate(quatArr)]
-    #axdata = [f[0] for i,f in enumerate(attitudeArr)] # attitude x 
-    #aydata = [f[1] for i,f in enumerate(attitudeArr)] # attitude y
-    #azdata = [f[2] for i,f in enumerate(attitudeArr)] # attitude z
-    #ax = fig.add_subplot(nRows, nCols, subplotIdx, projection='3d')
-    #ax.quiver(xdata, ydata, zdata, axdata, aydata, azdata, length=10.0)
-    #subplotIdx += 1
+        subplotIdx = 1
+        xdata = [f[0] for f in posArr] 
+        ydata = [f[1] for f in posArr]
+        zdata = [f[2] for f in posArr]
 
-    ## Position trajectories
-    ax = fig.add_subplot(nRows, nCols, subplotIdx)
-    ax.plot(elapsedMsArr, xdata, color='red', label='x-measured')
-    ax.plot(elapsedMsArr, plannedXdata, color='red', linestyle='dashed', label='x-guidance')
-    ax.plot(elapsedMsArr, ydata, color='green', label='y-measured')
-    ax.plot(elapsedMsArr, plannedYdata, color='green', linestyle='dashed', label='y-guidance')
-    ax.plot(elapsedMsArr, zdata, color='blue', label='z-measured')
-    ax.plot(elapsedMsArr, plannedZdata, color='blue', linestyle='dashed', label='z-guidance')
-    ax.legend()
-    ax.set_title('Position history') 
-    subplotIdx += 1
+        plannedXdata = [f[0] for f in plannedPosArr] 
+        plannedYdata = [f[1] for f in plannedPosArr]
+        plannedZdata = [f[2] for f in plannedPosArr]
 
-    ## Velocity trajectories
-    ax = fig.add_subplot(nRows, nCols, subplotIdx)
-    ax.plot(elapsedMsArr, dxdata, color='red', label='vx-measured')
-    ax.plot(elapsedMsArr, plannedDxdata, color='red', linestyle='dashed', label='vx-guidance')
-    ax.plot(elapsedMsArr, dydata, color='green', label='vy-measured')
-    ax.plot(elapsedMsArr, plannedDydata, color='green', linestyle='dashed', label='vy-guidance')
-    ax.plot(elapsedMsArr, dzdata, color='blue', label='vz-measured')
-    ax.plot(elapsedMsArr, plannedDzdata, color='blue', linestyle='dashed', label='vz-guidance')
-    ax.legend()
-    ax.set_title('Velocity history') 
-    subplotIdx += 1
+        dxdata = [f[0] for f in velArr] 
+        dydata = [f[1] for f in velArr]
+        dzdata = [f[2] for f in velArr]
 
-    ## Mass trajectories
-    ax = fig.add_subplot(nRows, nCols, subplotIdx)
-    ax.plot(elapsedMsArr, massArr, color='red', label='m-measured')
-    ax.plot(elapsedMsArr, plannedMassArr, color='red', linestyle='dashed', label='m-guidance')
-    ax.legend()
-    ax.set_title('Mass history') 
-    subplotIdx += 1
+        plannedDxdata = [f[0] for f in plannedVelArr] 
+        plannedDydata = [f[1] for f in plannedVelArr]
+        plannedDzdata = [f[2] for f in plannedVelArr]
 
-    ## Mass Dt trajectories
-    ax = fig.add_subplot(nRows, nCols, subplotIdx)
-    ax.plot(elapsedMsArr[1:-1], massDtArr, color='red', label='m-dt-measured')
-    ax.plot(elapsedMsArr[1:-1], plannedMassDtArr, color='red', linestyle='dashed', label='m-dt-guidance')
-    ax.legend()
-    ax.set_title('Mass Dt history') 
-    subplotIdx += 1
+        # We might show a mix of 2D and 3D subplots, see https://matplotlib.org/stable/gallery/mplot3d/subplot3d.html for more information.
+        fig = plt.figure(figsize=(12, 8))
+        figName = f'episode_plot_{nowEp+1:02d}'
+        fig.canvas.manager.set_window_title(figName)
+        nRows, nCols = 3, 3
 
-    ## Quat deviation history
-    quatDeviationArr = [((f.getR()-1.0)**2 + f.getI()**2 + f.getJ()**2 + f.getK()**2) for i,f in enumerate(quatArr)]
-    ax = fig.add_subplot(nRows, nCols, subplotIdx)
-    ax.plot(elapsedMsArr, quatDeviationArr, color='olive', label='quatDeviation')
-    ax.legend()
-    ax.set_title('Attitude deviation') 
-    subplotIdx += 1
+        ## 3D quiver plotting
+        #attitudeArr = [f.getUp() for i,f in enumerate(quatArr)]
+        #axdata = [f[0] for i,f in enumerate(attitudeArr)] # attitude x 
+        #aydata = [f[1] for i,f in enumerate(attitudeArr)] # attitude y
+        #azdata = [f[2] for i,f in enumerate(attitudeArr)] # attitude z
+        #ax = fig.add_subplot(nRows, nCols, subplotIdx, projection='3d')
+        #ax.quiver(xdata, ydata, zdata, axdata, aydata, azdata, length=10.0)
+        #subplotIdx += 1
 
-    ## Dt history 
-    ax = fig.add_subplot(nRows, nCols, subplotIdx)
-    ax.plot(elapsedMsArr, globalDtArr, color='blue', label='global dt')
-    ax.legend()
-    ax.set_title('Physics engine tick intervals') 
-    subplotIdx += 1
+        ## Position trajectories
+        ax = fig.add_subplot(nRows, nCols, subplotIdx)
+        ax.plot(elapsedMsArr, xdata, color='red', label='x-measured')
+        ax.plot(elapsedMsArr, plannedXdata, color='red', linestyle='dashed', label='x-guidance')
+        ax.plot(elapsedMsArr, ydata, color='green', label='y-measured')
+        ax.plot(elapsedMsArr, plannedYdata, color='green', linestyle='dashed', label='y-guidance')
+        ax.plot(elapsedMsArr, zdata, color='blue', label='z-measured')
+        ax.plot(elapsedMsArr, plannedZdata, color='blue', linestyle='dashed', label='z-guidance')
+        ax.legend()
+        ax.set_title('Position history') 
+        subplotIdx += 1
 
-    ## Maxcv history, NOTE THAT this subplot has been observed to be closely related to that of "Quat deviation history" in terms of "coincidence of peaks" when there was considerable "Quat deviation"! 
-    ax = fig.add_subplot(nRows, nCols, subplotIdx)
-    ax.plot(elapsedMsArr, maxcvArr, color='blue')
-    ax.legend()
-    ax.set_title('Constraint Violation of IK Estimator') 
-    subplotIdx += 1
+        ## Velocity trajectories
+        ax = fig.add_subplot(nRows, nCols, subplotIdx)
+        ax.plot(elapsedMsArr, dxdata, color='red', label='vx-measured')
+        ax.plot(elapsedMsArr, plannedDxdata, color='red', linestyle='dashed', label='vx-guidance')
+        ax.plot(elapsedMsArr, dydata, color='green', label='vy-measured')
+        ax.plot(elapsedMsArr, plannedDydata, color='green', linestyle='dashed', label='vy-guidance')
+        ax.plot(elapsedMsArr, dzdata, color='blue', label='vz-measured')
+        ax.plot(elapsedMsArr, plannedDzdata, color='blue', linestyle='dashed', label='vz-guidance')
+        ax.legend()
+        ax.set_title('Velocity history') 
+        subplotIdx += 1
 
-    fig.tight_layout()
-    #plt.show(block=True)
-    plt.savefig(f'{CWD}/episode_stats/{figName}')
+        ## Mass trajectories
+        ax = fig.add_subplot(nRows, nCols, subplotIdx)
+        ax.plot(elapsedMsArr, massArr, color='red', label='m-measured')
+        ax.plot(elapsedMsArr, plannedMassArr, color='red', linestyle='dashed', label='m-guidance')
+        ax.legend()
+        ax.set_title('Mass history') 
+        subplotIdx += 1
 
-    rmseM = error_stats.rmse(massArr, plannedMassArr)
-    rmseR = error_stats.rmse(posArr, plannedPosArr)
-    rmseRDot = error_stats.rmse(velArr, plannedVelArr)
-    rmseQ = error_stats.rmse([numpy.array([q.getR(), q.getI(), q.getJ(), q.getK()]) for q in quatArr], [numpy.array([1., 0., 0., 0.]) for i in quatArr])
+        ## Mass Dt trajectories
+        ax = fig.add_subplot(nRows, nCols, subplotIdx)
+        ax.plot(elapsedMsArr[1:-1], massDtArr, color='red', label='m-dt-measured')
+        ax.plot(elapsedMsArr[1:-1], plannedMassDtArr, color='red', linestyle='dashed', label='m-dt-guidance')
+        ax.legend()
+        ax.set_title('Mass Dt history') 
+        subplotIdx += 1
 
-    tfMeasuredTot += tfMeasured
-    tfGuidanceTot += tfGuidance
-    rmseMTot += rmseM 
-    rmseRTot += rmseR
-    rmseRDotTot += rmseRDot
-    rmseQTot += rmseQ
+        ## Quat deviation history
+        quatDeviationArr = [((f.getR()-1.0)**2 + f.getI()**2 + f.getJ()**2 + f.getK()**2) for i,f in enumerate(quatArr)]
+        ax = fig.add_subplot(nRows, nCols, subplotIdx)
+        ax.plot(elapsedMsArr, quatDeviationArr, color='olive', label='quatDeviation')
+        ax.legend()
+        ax.set_title('Attitude deviation') 
+        subplotIdx += 1
 
-    nowEp += 1
+        ## Dt history 
+        ax = fig.add_subplot(nRows, nCols, subplotIdx)
+        ax.plot(elapsedMsArr, globalDtArr, color='blue', label='global dt')
+        ax.legend()
+        ax.set_title('Physics engine tick intervals') 
+        subplotIdx += 1
+
+        ## Maxcv history, NOTE THAT this subplot has been observed to be closely related to that of "Quat deviation history" in terms of "coincidence of peaks" when there was considerable "Quat deviation"! 
+        ax = fig.add_subplot(nRows, nCols, subplotIdx)
+        ax.plot(elapsedMsArr, maxcvArr, color='blue')
+        ax.legend()
+        ax.set_title('Constraint Violation of IK Estimator') 
+        subplotIdx += 1
+
+        fig.tight_layout()
+        #plt.show(block=True)
+        plt.savefig(f'{CWD}/episode_stats/{figName}')
+
+        rmseM = error_stats.rmse(massArr, plannedMassArr)
+        rmseR = error_stats.rmse(posArr, plannedPosArr)
+        rmseRDot = error_stats.rmse(velArr, plannedVelArr)
+        rmseQ = error_stats.rmse([numpy.array([q.getR(), q.getI(), q.getJ(), q.getK()]) for q in quatArr], [numpy.array([1., 0., 0., 0.]) for i in quatArr])
+
+        tfMeasuredTot += tfMeasured
+        tfGuidanceTot += tfGuidance
+        rmseMTot += rmseM 
+        rmseRTot += rmseR
+        rmseRDotTot += rmseRDot
+        rmseQTot += rmseQ
+
+        # Reference https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html?highlight=pearson
+        pearsonrMxCvAndMdotErr = pearsonr([abs(massDtArr[i]-plannedMassDtArr[i]) for i,_ in enumerate(massDtArr)], maxcvArr[1:-1]) 
+        pearsonrMxCvAndQuatErr = pearsonr(quatDeviationArr, maxcvArr) 
+
+        pearsonrFile.write(f'episode#{nowEp+1:02d}, pearsonrMxCvAndMdotErr.r={pearsonrMxCvAndMdotErr[0]:+03.6f}, pearsonrMxCvAndQuatErr.r={pearsonrMxCvAndQuatErr[0]:+03.6f}\n')
+        
+        nowEp += 1
 
 avgTfMeasured = tfMeasuredTot/nowEp
 avgTfMeasured = format(avgTfMeasured, '.2f')

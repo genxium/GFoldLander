@@ -39,6 +39,8 @@ out/*
 **/*.blend1
 **/*.stats
 **/episode_stats/*.png
+**/episode_stats/*.all
+**/episode_stats/*.zip
 **/*.hprof
 **/output
 **/output/*

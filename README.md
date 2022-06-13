@@ -1,5 +1,5 @@
 ### Prerequisites
-Please ensure that you have python-3.7.3 installed (either on OSX or Windows, this is to ensure that we have same behaviour for `scipy-1.7.1` solvers).
+Please ensure that you have python version >=3.8 but <3.11 installed (either on OSX or Windows, this is to ensure that we have same behaviour for `scipy-1.7.1` solvers).
 
 ```
 pip3 install -r requirements.txt
