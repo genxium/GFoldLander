@@ -806,7 +806,7 @@ class Game(DirectObject):
 		rootLogger.warning(f'doEnd()')
 
 		# persist episode result
-		filepath = CWD + f'/episode_stats/ep_{self.nowEp}.stats'
+		filepath = CWD + f'/episode_stats/ep_{self.nowEp:02d}.stats'
 		statsFile = open(filepath, 'wb')
 		rootLogger.info(f'Writting to {filepath}, please don\'t close the application!')
 		measuredTimeOfFlightSeconds = self.elapsedTimeInMainThread - self.recoveryStartTimeInMainThread

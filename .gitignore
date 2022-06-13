@@ -38,6 +38,7 @@ out/*
 **/*.run*
 **/*.blend1
 **/*.stats
+**/episode_stats/*.png
 **/*.hprof
 **/output
 **/output/*
