@@ -32,3 +32,11 @@ def rmse(measured, guidance):
             ret += diff*diff
 
     return math.sqrt(ret/n) 
+
+def timeDiff(valArr, timeArr):
+    result = []
+    for i,f in enumerate(valArr):
+        if i <= 0 or i >= len(valArr)-1:
+            continue
+        result.append((valArr[i+1]-valArr[i-1])/(timeArr[i]+timeArr[i+1]))   
+    return result

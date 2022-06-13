@@ -40,6 +40,7 @@ out/*
 **/*.stats
 **/episode_stats/*.png
 **/episode_stats/*.all
+**/episode_stats/*.txt
 **/episode_stats/*.zip
 **/*.hprof
 **/output

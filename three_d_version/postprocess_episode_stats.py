@@ -29,7 +29,7 @@ from scipy.stats import pearsonr
 # Get the list of all files and directories
 dirpath = CWD + '/episode_stats'
 
-with open(f'{dirpath}/pearsonr.all', 'w') as pearsonrFile: 
+with open(f'{dirpath}/pearsonr_all.txt', 'w+') as pearsonrFile: 
     nowEp = 0
     tfMeasuredTot, tfGuidanceTot, rmseMTot, rmseRTot, rmseRDotTot, rmseQTot = 0., 0., 0., 0., 0., 0.
     for filename in os.listdir(dirpath): 
@@ -53,6 +53,8 @@ with open(f'{dirpath}/pearsonr.all', 'w') as pearsonrFile:
         quatArr = data[9] 
         globalDtArr = data[10]
         maxcvArr = data[11]
+        phyDivPidStArr = data[12]
+        phyDivPidEdArr = data[13]
         #rootLogger.info(f'tfMeasured = {tfMeasured}')
 
         # Remove the None elements
@@ -67,19 +69,14 @@ with open(f'{dirpath}/pearsonr.all', 'w') as pearsonrFile:
         globalDtArr = [f for i,f in enumerate(globalDtArr) if elapsedMsArr[i] is not None]
         maxcvArr = [f if f else 0. for i,f in enumerate(maxcvArr) if elapsedMsArr[i] is not None]
 
+        phyDivPidStArr = [f if f else 0. for i,f in enumerate(phyDivPidStArr) if elapsedMsArr[i] is not None]
+        phyDivPidEdArr = [f if f else 0. for i,f in enumerate(phyDivPidEdArr) if elapsedMsArr[i] is not None]
+
         elapsedMsArr = [f for f in elapsedMsArr if f is not None] 
 
-        massDtArr = []
-        for i,f in enumerate(massArr):
-            if i <= 0 or i >= len(massArr)-1:
-                continue
-            massDtArr.append((massArr[i+1]-massArr[i-1])/(globalDtArr[i]+globalDtArr[i+1]))   
-
-        plannedMassDtArr = []
-        for i,f in enumerate(plannedMassArr):
-            if i <= 0 or i >= len(plannedMassArr)-1:
-                continue
-            plannedMassDtArr.append((plannedMassArr[i+1]-plannedMassArr[i-1])/(globalDtArr[i]+globalDtArr[i+1]))   
+        massDtArr = error_stats.timeDiff(massArr, globalDtArr)
+        plannedMassDtArr = error_stats.timeDiff(plannedMassArr, globalDtArr)
+        phyDivPidEdDtArr = error_stats.timeDiff(phyDivPidEdArr, globalDtArr)
 
         subplotIdx = 1
         xdata = [f[0] for f in posArr] 
@@ -163,12 +160,19 @@ with open(f'{dirpath}/pearsonr.all', 'w') as pearsonrFile:
 
         ## Dt history 
         ax = fig.add_subplot(nRows, nCols, subplotIdx)
-        ax.plot(elapsedMsArr, globalDtArr, color='blue', label='global dt')
+        ax.plot(elapsedMsArr[1:-1], globalDtArr[1:-1], color='blue', label='simCnt dt')
         ax.legend()
-        ax.set_title('Physics engine tick intervals') 
+        ax.set_title('Simulation ticks') 
         subplotIdx += 1
 
-        ## Maxcv history, NOTE THAT this subplot has been observed to be closely related to that of "Quat deviation history" in terms of "coincidence of peaks" when there was considerable "Quat deviation"! 
+        ## d(simCnt/ctrlCnt)/dt history 
+        ax = fig.add_subplot(nRows, nCols, subplotIdx)
+        ax.plot(elapsedMsArr[1:-1], phyDivPidEdDtArr, color='red', label='d(simCnt/ctrlCnt)/dt')
+        ax.legend()
+        ax.set_title('Tick ratio') 
+        subplotIdx += 1
+
+        ## Maxcv history 
         ax = fig.add_subplot(nRows, nCols, subplotIdx)
         ax.plot(elapsedMsArr, maxcvArr, color='blue')
         ax.legend()
@@ -192,10 +196,10 @@ with open(f'{dirpath}/pearsonr.all', 'w') as pearsonrFile:
         rmseQTot += rmseQ
 
         # Reference https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html?highlight=pearson
-        pearsonrMxCvAndMdotErr = pearsonr([abs(massDtArr[i]-plannedMassDtArr[i]) for i,_ in enumerate(massDtArr)], maxcvArr[1:-1]) 
-        pearsonrMxCvAndQuatErr = pearsonr(quatDeviationArr, maxcvArr) 
+        #pearsonrMxCvAndMdotErr = pearsonr([abs(massDtArr[i]-plannedMassDtArr[i]) for i,_ in enumerate(massDtArr)], maxcvArr[1:-1]) 
+        #pearsonrMxCvAndQuatErr = pearsonr(quatDeviationArr, maxcvArr) 
 
-        pearsonrFile.write(f'episode#{nowEp+1:02d}, pearsonrMxCvAndMdotErr.r={pearsonrMxCvAndMdotErr[0]:+03.6f}, pearsonrMxCvAndQuatErr.r={pearsonrMxCvAndQuatErr[0]:+03.6f}\n')
+        #pearsonrFile.write(f'episode#{nowEp+1:02d}, pearsonrMxCvAndMdotErr.r={pearsonrMxCvAndMdotErr[0]:+03.6f}, pearsonrMxCvAndQuatErr.r={pearsonrMxCvAndQuatErr[0]:+03.6f}\n')
         
         nowEp += 1
 
@@ -220,9 +224,9 @@ toPrint = []
 toPrint.append(f'Averages of totally {nowEp} episodes')
 toPrint.append(f'tfGuidance :   {avgTfGuidance}')
 toPrint.append(f'tfMeasured :   {avgTfMeasured}')
-toPrint.append(f'rmseM      :   {avgRmseM}')
 toPrint.append(f'rmseR      :   {avgRmseR}')
 toPrint.append(f'rmseRDot   :   {avgRmseRDot}')
 toPrint.append(f'rmseQ      :   {avgRmseQ}')
+toPrint.append(f'rmseM      :   {avgRmseM}')
 
 rootLogger.info('\n'.join(toPrint))

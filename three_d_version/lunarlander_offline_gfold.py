@@ -356,7 +356,7 @@ class Game(DirectObject):
         nowPos, nowVel, nowLogm, nowQuat, nowOmega = env.state()
 
         tf_min = 13 # seconds
-        tf_max = 20 # seconds
+        tf_max = 15 # seconds
 
         rootLogger.info(f'tf_min: {tf_min}, tf_max: {tf_max}')
             
@@ -805,13 +805,13 @@ class Game(DirectObject):
 
         # persist episode result
         filepath = CWD + f'/episode_stats/ep_{self.nowEp:02d}.stats'
-        with open(filepath, 'wb') as statsFile: 
+        with open(filepath, 'wb+') as statsFile: 
             rootLogger.info(f'Writting to {filepath}, please don\'t close the application!')
             measuredTimeOfFlightSeconds = self.elapsedTimeInMainThread - self.recoveryStartTimeInMainThread
             if 0. >= measuredTimeOfFlightSeconds:
                 rootLogger.error(f'measuredTimeOfFlightSeconds is 0 when self.elapsedTimeInMainThread = {self.elapsedTimeInMainThread} and self.recoveryStartTimeInMainThread = {self.recoveryStartTimeInMainThread}, why?!')
                  
-            todump = (measuredTimeOfFlightSeconds, self.timeOfFlightSeconds, self.elapsedMsArr, self.posArr, self.plannedPosArr, self.velArr, self.plannedVelArr, self.massArr, self.plannedMassArr, self.quatArr, self.globalDtArr, self.maxcvArr)
+            todump = (measuredTimeOfFlightSeconds, self.timeOfFlightSeconds, self.elapsedMsArr, self.posArr, self.plannedPosArr, self.velArr, self.plannedVelArr, self.massArr, self.plannedMassArr, self.quatArr, self.globalDtArr, self.maxcvArr, self.phyDivPidStArr, self.phyDivPidEdArr)
             pickle.dump(todump, statsFile)
 
         rootLogger.info(f'Written to {filepath}')
@@ -827,7 +827,7 @@ class Game(DirectObject):
             #dump_objects = [o for o in all_objects if (isinstance(o, str) or isinstance(o, list) or isinstance(o, tuple) or isinstance(o, int))]
             dump_objects = [o for o in all_objects if (isinstance(o, str))]
             filepath = CWD + f'/heapdumps/ep_{self.nowEp}.hprof'
-            with open(filepath, 'wb') as hdfile:
+            with open(filepath, 'wb+') as hdfile:
                 rootLogger.info(f'Writting heapdump to {filepath}, please don\'t close the application!')
                 pickle.dump(dump_objects, hdfile)
 
