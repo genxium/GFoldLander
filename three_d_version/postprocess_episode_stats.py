@@ -186,7 +186,7 @@ with open(f'{dirpath}/pearsonr_all.txt', 'w+') as pearsonrFile:
         plt.savefig(f'{CWD}/episode_stats/{figName}')
 
         rmseM = error_stats.rmse(massArr, plannedMassArr)
-        rmseMDot = error_stats.rmse(massDtArr, plannedMassArr[1:-1])
+        rmseMDot = error_stats.rmse(massDtArr, plannedMassDtArr[1:-1])
         rmseR = error_stats.rmse(posArr, plannedPosArr)
         rmseRDot = error_stats.rmse(velArr, plannedVelArr)
         rmseQ = error_stats.rmse([numpy.array([q.getR(), q.getI(), q.getJ(), q.getK()]) for q in quatArr], [numpy.array([1., 0., 0., 0.]) for i in quatArr])
