@@ -31,7 +31,9 @@ dirpath = CWD + '/episode_stats'
 
 with open(f'{dirpath}/pearsonr_all.txt', 'w+') as pearsonrFile: 
     nowEp = 0
-    tfMeasuredTot, tfGuidanceTot, rmseMTot, rmseRTot, rmseRDotTot, rmseQTot = 0., 0., 0., 0., 0., 0.
+    tfMeasuredTot, tfGuidanceTot, rmseMTot, rmseMDotTot, rmseRTot, rmseRDotTot, rmseQTot = 0., 0., 0., 0., 0., 0., 0.
+    pearsonrMxCvAndQuatErrTot, pearsonrMxCvAndMdotErrTot, pearsonrMxCvAndTickRatioTot = 0., 0., 0.
+    pearsonrMxCvAndQuatErrTotNep, pearsonrMxCvAndMdotErrTotNep, pearsonrMxCvAndTickRatioTotNep = 0, 0, 0
     for filename in os.listdir(dirpath): 
         ext = pathlib.Path(filename).suffix
         if '.stats' != ext:
@@ -184,6 +186,7 @@ with open(f'{dirpath}/pearsonr_all.txt', 'w+') as pearsonrFile:
         plt.savefig(f'{CWD}/episode_stats/{figName}')
 
         rmseM = error_stats.rmse(massArr, plannedMassArr)
+        rmseMDot = error_stats.rmse(massDtArr, plannedMassArr[1:-1])
         rmseR = error_stats.rmse(posArr, plannedPosArr)
         rmseRDot = error_stats.rmse(velArr, plannedVelArr)
         rmseQ = error_stats.rmse([numpy.array([q.getR(), q.getI(), q.getJ(), q.getK()]) for q in quatArr], [numpy.array([1., 0., 0., 0.]) for i in quatArr])
@@ -191,15 +194,28 @@ with open(f'{dirpath}/pearsonr_all.txt', 'w+') as pearsonrFile:
         tfMeasuredTot += tfMeasured
         tfGuidanceTot += tfGuidance
         rmseMTot += rmseM 
+        rmseMDotTot += rmseMDot 
         rmseRTot += rmseR
         rmseRDotTot += rmseRDot
         rmseQTot += rmseQ
 
         # Reference https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html?highlight=pearson
-        #pearsonrMxCvAndMdotErr = pearsonr([abs(massDtArr[i]-plannedMassDtArr[i]) for i,_ in enumerate(massDtArr)], maxcvArr[1:-1]) 
-        #pearsonrMxCvAndQuatErr = pearsonr(quatDeviationArr, maxcvArr) 
+        pearsonrMxCvAndQuatErr = pearsonr(quatDeviationArr, maxcvArr) 
+        if not numpy.isnan(pearsonrMxCvAndQuatErr[0]):        
+            pearsonrMxCvAndQuatErrTot += pearsonrMxCvAndQuatErr[0] 
+            pearsonrMxCvAndQuatErrTotNep += 1
 
-        #pearsonrFile.write(f'episode#{nowEp+1:02d}, pearsonrMxCvAndMdotErr.r={pearsonrMxCvAndMdotErr[0]:+03.6f}, pearsonrMxCvAndQuatErr.r={pearsonrMxCvAndQuatErr[0]:+03.6f}\n')
+        pearsonrMxCvAndMdotErr = pearsonr([massDtArr[i]/plannedMassDtArr[i] for i,_ in enumerate(massDtArr)], maxcvArr[1:-1]) 
+        if not numpy.isnan(pearsonrMxCvAndMdotErr[0]):        
+            pearsonrMxCvAndMdotErrTot += pearsonrMxCvAndMdotErr[0] 
+            pearsonrMxCvAndMdotErrTotNep += 1
+
+        pearsonrMxCvAndTickRatio = pearsonr([abs(f) for f in phyDivPidEdDtArr], maxcvArr[1:-1]) 
+        if not numpy.isnan(pearsonrMxCvAndTickRatio[0]):        
+            pearsonrMxCvAndTickRatioTot += pearsonrMxCvAndTickRatio[0] 
+            pearsonrMxCvAndTickRatioTotNep += 1
+
+        pearsonrFile.write(f'episode#{nowEp+1:02d}, pearsonrMxCvAndQuatErr.r={pearsonrMxCvAndQuatErr[0]:+03.6f}, pearsonrMxCvAndMdotErr.r={pearsonrMxCvAndMdotErr[0]:+03.6f}, pearsonrMxCvAndTickRatio.r={pearsonrMxCvAndTickRatio[0]:+03.6f}\n')
         
         nowEp += 1
 
@@ -211,6 +227,9 @@ avgTfGuidance = format(avgTfGuidance, '.2f')
 avgRmseM = rmseMTot/nowEp
 avgRmseM = format(avgRmseM, '.2f')
 
+avgRmseMDot = rmseMDotTot/nowEp-2
+avgRmseMDot = format(avgRmseMDot, '.2f')
+
 avgRmseR = rmseRTot/nowEp
 avgRmseR = format(avgRmseR, '.2f')
 
@@ -220,6 +239,10 @@ avgRmseRDot = format(avgRmseRDot, '.2f')
 avgRmseQ = rmseQTot/nowEp
 avgRmseQ = format(avgRmseQ, '.7f')
 
+avgPrQuat = pearsonrMxCvAndQuatErrTot/pearsonrMxCvAndQuatErrTotNep
+avgPrMdot = pearsonrMxCvAndMdotErrTot/pearsonrMxCvAndMdotErrTotNep
+avgPrTick = pearsonrMxCvAndTickRatioTot/pearsonrMxCvAndTickRatioTotNep
+
 toPrint = []
 toPrint.append(f'Averages of totally {nowEp} episodes')
 toPrint.append(f'tfGuidance :   {avgTfGuidance}')
@@ -228,5 +251,9 @@ toPrint.append(f'rmseR      :   {avgRmseR}')
 toPrint.append(f'rmseRDot   :   {avgRmseRDot}')
 toPrint.append(f'rmseQ      :   {avgRmseQ}')
 toPrint.append(f'rmseM      :   {avgRmseM}')
+toPrint.append(f'rmseMDot   :   {avgRmseMDot}')
+toPrint.append(f'prQuat     :   {avgPrQuat}')
+toPrint.append(f'prMdot     :   {avgPrMdot}')
+toPrint.append(f'prTick     :   {avgPrTick}')
 
 rootLogger.info('\n'.join(toPrint))
