@@ -112,42 +112,45 @@ with open(f'{dirpath}/pearsonr_all.txt', 'w+') as pearsonrFile:
         #ax.quiver(xdata, ydata, zdata, axdata, aydata, azdata, length=10.0)
         #subplotIdx += 1
 
-        ## Position trajectories
+        ## Position trajectories, for linestyles, refer to 
+		# https://matplotlib.org/stable/gallery/lines_bars_and_markers/linestyles.html 
+		# https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html
+        k = 5
         ax = fig.add_subplot(nRows, nCols, subplotIdx)
-        ax.plot(elapsedMsArr, xdata, color='red', label='x-measured')
-        ax.plot(elapsedMsArr, plannedXdata, color='red', linestyle='dashed', label='x-guidance')
-        ax.plot(elapsedMsArr, ydata, color='green', label='y-measured')
-        ax.plot(elapsedMsArr, plannedYdata, color='green', linestyle='dashed', label='y-guidance')
-        ax.plot(elapsedMsArr, zdata, color='blue', label='z-measured')
-        ax.plot(elapsedMsArr, plannedZdata, color='blue', linestyle='dashed', label='z-guidance')
+        ax.plot(elapsedMsArr[::k], xdata[::k], color='black', marker='x', markerfacecolor='None', markersize=3, linestyle='None', label='x-measured')
+        ax.plot(elapsedMsArr[::k], plannedXdata[::k], color='black', linewidth=1, linestyle='dashed', label='x-guidance')
+        ax.plot(elapsedMsArr[::k], ydata[::k], color='black', marker='o', markerfacecolor='None', markersize=3, linestyle='None', label='y-measured')
+        ax.plot(elapsedMsArr[::k], plannedYdata[::k], color='black', linewidth=1, linestyle=(0, (3, 1, 1, 1)), label='y-guidance')
+        ax.plot(elapsedMsArr[::k], zdata[::k], color='black', marker='s', markerfacecolor='None', markersize=3, linestyle='None', label='z-measured')
+        ax.plot(elapsedMsArr[::k], plannedZdata[::k], color='black', linewidth=1, linestyle=(0, (3, 1, 1, 1, 1, 1)), label='z-guidance')
         ax.legend()
-        ax.set_title('Position history') 
+        ax.set_title('Position history')
         subplotIdx += 1
 
         ## Velocity trajectories
         ax = fig.add_subplot(nRows, nCols, subplotIdx)
-        ax.plot(elapsedMsArr, dxdata, color='red', label='vx-measured')
-        ax.plot(elapsedMsArr, plannedDxdata, color='red', linestyle='dashed', label='vx-guidance')
-        ax.plot(elapsedMsArr, dydata, color='green', label='vy-measured')
-        ax.plot(elapsedMsArr, plannedDydata, color='green', linestyle='dashed', label='vy-guidance')
-        ax.plot(elapsedMsArr, dzdata, color='blue', label='vz-measured')
-        ax.plot(elapsedMsArr, plannedDzdata, color='blue', linestyle='dashed', label='vz-guidance')
+        ax.plot(elapsedMsArr[::k], dxdata[::k], color='black', marker='x', markerfacecolor='None', markersize=3, linestyle='None', label='vx-measured')
+        ax.plot(elapsedMsArr[::k], plannedDxdata[::k], color='black', linewidth=1, linestyle='dashed', label='vx-guidance')
+        ax.plot(elapsedMsArr[::k], dydata[::k], color='black', marker='o', markerfacecolor='None', markersize=3, linestyle='None', label='vy-measured')
+        ax.plot(elapsedMsArr[::k], plannedDydata[::k], color='black', linewidth=1, linestyle=(0, (3, 1, 1, 1)), label='vy-guidance')
+        ax.plot(elapsedMsArr[::k], dzdata[::k], color='black', marker='s', markerfacecolor='None', markersize=3, linestyle='None', label='vz-measured')
+        ax.plot(elapsedMsArr[::k], plannedDzdata[::k], color='black', linewidth=1, linestyle=(0, (3, 1, 1, 1, 1, 1)), label='vz-guidance')
         ax.legend()
         ax.set_title('Velocity history') 
         subplotIdx += 1
 
         ## Mass trajectories
         ax = fig.add_subplot(nRows, nCols, subplotIdx)
-        ax.plot(elapsedMsArr, massArr, color='red', label='m-measured')
-        ax.plot(elapsedMsArr, plannedMassArr, color='red', linestyle='dashed', label='m-guidance')
+        ax.plot(elapsedMsArr, massArr, color='black', label='m-measured')
+        ax.plot(elapsedMsArr, plannedMassArr, color='black', linestyle='dashed', label='m-guidance')
         ax.legend()
         ax.set_title('Mass history') 
         subplotIdx += 1
 
         ## Mass Dt trajectories
         ax = fig.add_subplot(nRows, nCols, subplotIdx)
-        ax.plot(elapsedMsArr[1:-1], massDtArr, color='red', label='m-dt-measured')
-        ax.plot(elapsedMsArr[1:-1], plannedMassDtArr, color='red', linestyle='dashed', label='m-dt-guidance')
+        ax.plot(elapsedMsArr[1:-1], massDtArr, color='black', label='m-dt-measured')
+        ax.plot(elapsedMsArr[1:-1], plannedMassDtArr, color='black', linestyle='dashed', label='m-dt-guidance')
         ax.legend()
         ax.set_title('Mass Dt history') 
         subplotIdx += 1
@@ -155,28 +158,28 @@ with open(f'{dirpath}/pearsonr_all.txt', 'w+') as pearsonrFile:
         ## Quat deviation history
         quatDeviationArr = [((f.getR()-1.0)**2 + f.getI()**2 + f.getJ()**2 + f.getK()**2) for i,f in enumerate(quatArr)]
         ax = fig.add_subplot(nRows, nCols, subplotIdx)
-        ax.plot(elapsedMsArr, quatDeviationArr, color='olive', label='quatDeviation')
+        ax.plot(elapsedMsArr, quatDeviationArr, color='black', label='quatDeviation')
         ax.legend()
         ax.set_title('Attitude deviation') 
         subplotIdx += 1
 
         ## Dt history 
         ax = fig.add_subplot(nRows, nCols, subplotIdx)
-        ax.plot(elapsedMsArr[1:-1], globalDtArr[1:-1], color='blue', label='simCnt dt')
+        ax.plot(elapsedMsArr[1:-1], globalDtArr[1:-1], color='black', label='simCnt dt')
         ax.legend()
         ax.set_title('Simulation ticks') 
         subplotIdx += 1
 
         ## d(simCnt/ctrlCnt)/dt history 
         ax = fig.add_subplot(nRows, nCols, subplotIdx)
-        ax.plot(elapsedMsArr[1:-1], phyDivPidEdDtArr, color='red', label='d(simCnt/ctrlCnt)/dt')
+        ax.plot(elapsedMsArr[1:-1], phyDivPidEdDtArr, color='black', label='d(simCnt/ctrlCnt)/dt')
         ax.legend()
         ax.set_title('Tick ratio') 
         subplotIdx += 1
 
         ## Maxcv history 
         ax = fig.add_subplot(nRows, nCols, subplotIdx)
-        ax.plot(elapsedMsArr, maxcvArr, color='blue')
+        ax.plot(elapsedMsArr, maxcvArr, color='black')
         ax.legend()
         ax.set_title('Constraint Violation of IK Estimator') 
         subplotIdx += 1

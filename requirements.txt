@@ -1,6 +1,6 @@
 cvxpy==1.2
 autograd==1.3
-matplotlib==3.3.3 
+matplotlib==3.5.2 
 numpy==1.21.5 # Don't change version!
 scipy==1.8.1 # Don't change version! The solvers are version specific!
 control==0.9.0
