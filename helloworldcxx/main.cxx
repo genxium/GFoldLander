@@ -10,6 +10,11 @@
 #include "bulletPlaneShape.h"
 #include "bulletBoxShape.h"
 
+#include "ambientLight.h"
+#include "directionalLight.h"
+#include "pointLight.h"
+#include "spotlight.h"
+
 // The global task manager
 PT(AsyncTaskManager) taskMgr = AsyncTaskManager::get_global_ptr();
 // The global clock
@@ -38,9 +43,9 @@ AsyncTask::DoneStatus spinCameraTask(GenericAsyncTask *task, void *data) {
 	double time = globalClock->get_real_time();
 	double angledegrees = time * 6.0;
 	double angleradians = angledegrees * (3.14 / 180.0);
-	camera.set_pos(50*sin(angleradians),-50.0*cos(angleradians), 3);
-	// camera.set_hpr(angledegrees, 0, 0);
+	LVecBase3 cameraOffset = LVecBase3(50*sin(angleradians), -50.0*cos(angleradians), 20);
 	NodePath np_box = *((NodePath*)data);
+	camera.set_pos(np_box.get_pos() + cameraOffset);
 	camera.look_at(np_box);
 
 	// Tell the task manager to continue this task the next frame.
@@ -60,8 +65,18 @@ int main(int argc, char *argv[]) {
 	window->enable_keyboard();
 	window->setup_trackball();
 
+	// Light
+	// [WARNING] without any lighting "assets/rocket.bam" would look totally white, possibly due to its material choice?
+	PT(DirectionalLight) d_light;
+	d_light = new DirectionalLight("d_light"); 
+	d_light->set_direction(LVecBase3(1, 1, -1));
+	d_light->set_color(LColor(0.7, 0.7, 0.7, 1));
+	NodePath dlnp = window->get_render().attach_new_node(d_light);
+
+	window->get_render().clear_light();
+	window->get_render().set_light(dlnp);
+
 	camera = window->get_camera_group();
-	// TODO: How to set camera pos and hpr based on that of the box?
 	taskMgr = AsyncTaskManager::get_global_ptr();
 
 	// Make physics simulation.
@@ -87,7 +102,6 @@ int main(int argc, char *argv[]) {
 	NodePath np_box = window->get_render().attach_new_node(box_rigid_node);
 	NodePath np_box_model = window->load_model(framework.get_models(), "assets/rocket.bam");
 	np_box_model.set_pos(0, 0, 0); // This is the positin within "np_box"
-	np_box.flatten_light();
 	np_box_model.reparent_to(np_box);
 
 	np_box.set_pos(0, 0, 5);
@@ -96,7 +110,7 @@ int main(int argc, char *argv[]) {
 	// If we specify custom data instead of NULL, it will be passed as the second argument
 	// to the task function.
 	taskMgr->add(new GenericAsyncTask("Scene update", &update_scene, nullptr));
-  	taskMgr->add(new GenericAsyncTask("Spins the camera", &spinCameraTask, (void*)(&np_box)));
+  	taskMgr->add(new GenericAsyncTask("Spins the camera", &spinCameraTask, &np_box));
 
 	framework.main_loop();
 	framework.close_framework();
