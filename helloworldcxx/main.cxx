@@ -10,6 +10,13 @@
 #include "bulletPlaneShape.h"
 #include "bulletBoxShape.h"
 
+// The global task manager
+PT(AsyncTaskManager) taskMgr = AsyncTaskManager::get_global_ptr();
+// The global clock
+PT(ClockObject) globalClock = ClockObject::get_global_clock();
+// Here's what we'll store the camera in.
+NodePath camera;
+
 BulletWorld *get_physics_world() {
 	// physics_world is supposed to be an global variable,
 	// but declaring global variables is not cool
@@ -26,13 +33,24 @@ AsyncTask::DoneStatus update_scene(GenericAsyncTask* task, void* data) {
 	return AsyncTask::DS_cont;
 }
 
+AsyncTask::DoneStatus spinCameraTask(GenericAsyncTask *task, void *data) {
+	// Calculate the new position and orientation (inefficient - change me!)
+	double time = globalClock->get_real_time();
+	double angledegrees = time * 6.0;
+	double angleradians = angledegrees * (3.14 / 180.0);
+	camera.set_pos(50*sin(angleradians),-50.0*cos(angleradians), 3);
+	// camera.set_hpr(angledegrees, 0, 0);
+	NodePath np_box = *((NodePath*)data);
+	camera.look_at(np_box);
+
+	// Tell the task manager to continue this task the next frame.
+	return AsyncTask::DS_cont;
+}
+
 int main(int argc, char *argv[]) {
 	// All variables.
 	PandaFramework framework;
 	WindowFramework *window;
-	NodePath camera;
-	LVecBase3 cameraOffset = LVecBase3(-10, 10, 100);
-	PT(AsyncTaskManager) task_mgr;
 
 	// Init everything :D
 	framework.open_framework(argc, argv);
@@ -44,7 +62,7 @@ int main(int argc, char *argv[]) {
 
 	camera = window->get_camera_group();
 	// TODO: How to set camera pos and hpr based on that of the box?
-	task_mgr = AsyncTaskManager::get_global_ptr();
+	taskMgr = AsyncTaskManager::get_global_ptr();
 
 	// Make physics simulation.
 	// Static world stuff.
@@ -67,21 +85,21 @@ int main(int argc, char *argv[]) {
 	box_rigid_node->add_shape(box_shape);
 
 	NodePath np_box = window->get_render().attach_new_node(box_rigid_node);
-	np_box.set_pos(0, 0, 5);
-	camera.set_pos(np_box.get_pos() + cameraOffset); // Seems like this line is not working as expected!	
-	get_physics_world()->attach(box_rigid_node);
-
-	NodePath np_box_model = window->load_model(framework.get_models(), "models/box");
-	np_box_model.set_pos(-0.5, -0.5, -0.5); // This is the positin within "np_box"
+	NodePath np_box_model = window->load_model(framework.get_models(), "assets/rocket.bam");
+	np_box_model.set_pos(0, 0, 0); // This is the positin within "np_box"
 	np_box.flatten_light();
 	np_box_model.reparent_to(np_box);
 
-	PT(GenericAsyncTask) task;
-	task = new GenericAsyncTask("Scene update", &update_scene, nullptr);
-	task_mgr->add(task);
+	np_box.set_pos(0, 0, 5);
+	get_physics_world()->attach(box_rigid_node);
+
+	// If we specify custom data instead of NULL, it will be passed as the second argument
+	// to the task function.
+	taskMgr->add(new GenericAsyncTask("Scene update", &update_scene, nullptr));
+  	taskMgr->add(new GenericAsyncTask("Spins the camera", &spinCameraTask, (void*)(&np_box)));
 
 	framework.main_loop();
 	framework.close_framework();
 
-	return (0);
+	return 0;
 }
