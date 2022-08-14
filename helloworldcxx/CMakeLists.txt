@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
+set(HEADER_PATH ${CMAKE_SOURCE_DIR})
 set(P3D_HEADER_PATH "/Library/Developer/Panda3D/include/") 
 set(P3D_BULLET_HEADER_PATH "/Library/Developer/Panda3D/thirdparty/darwin-libs-a/bullet/include/") 
 set(P3D_DLL_PATH "/Library/Developer/Panda3D/lib/") # might use "export DYLD_LIBRARY_PATH=/Library/Developer/Panda3D/lib" to link at runtime
@@ -39,10 +40,10 @@ set(TARGET_NAME "Panda3DCppHello")
 # set the project name
 project(Panda3DCppHello)
 
-include_directories(${P3D_BULLET_HEADER_PATH} ${P3D_HEADER_PATH}) # set header search path
+include_directories(${HEADER_PATH} ${P3D_BULLET_HEADER_PATH} ${P3D_HEADER_PATH}) # set header search path
 link_directories(${P3D_BULLET_LIB_PATH} ${P3D_DLL_PATH}) # set library search path
 
-add_executable(${TARGET_NAME} main.cxx)
+add_executable(${TARGET_NAME} main.cxx terrain.cxx)
 target_link_libraries(${TARGET_NAME} ${P3D_STATIC} ${P3D_DLL}) 
 
 IF(APPLE)

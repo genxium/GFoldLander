@@ -15,6 +15,8 @@
 #include "pointLight.h"
 #include "spotlight.h"
 
+#include "./terrain.h"
+
 // The global task manager
 PT(AsyncTaskManager) taskMgr = AsyncTaskManager::get_global_ptr();
 // The global clock
@@ -44,9 +46,9 @@ AsyncTask::DoneStatus spinCameraTask(GenericAsyncTask *task, void *data) {
 	double angledegrees = time * 6.0;
 	double angleradians = angledegrees * (3.14 / 180.0);
 	LVecBase3 cameraOffset = LVecBase3(50*sin(angleradians), -50.0*cos(angleradians), 20);
-	NodePath np_box = *((NodePath*)data);
-	camera.set_pos(np_box.get_pos() + cameraOffset);
-	camera.look_at(np_box);
+	NodePath boxNp = *((NodePath*)data);
+	camera.set_pos(boxNp.get_pos() + cameraOffset);
+	camera.look_at(boxNp);
 
 	// Tell the task manager to continue this task the next frame.
 	return AsyncTask::DS_cont;
@@ -71,10 +73,10 @@ int main(int argc, char *argv[]) {
 	d_light = new DirectionalLight("d_light"); 
 	d_light->set_direction(LVecBase3(1, 1, -1));
 	d_light->set_color(LColor(0.7, 0.7, 0.7, 1));
-	NodePath dlnp = window->get_render().attach_new_node(d_light);
+	NodePath dlNp = window->get_render().attach_new_node(d_light);
 
 	window->get_render().clear_light();
-	window->get_render().set_light(dlnp);
+	window->get_render().set_light(dlNp);
 
 	camera = window->get_camera_group();
 	taskMgr = AsyncTaskManager::get_global_ptr();
@@ -88,8 +90,8 @@ int main(int argc, char *argv[]) {
 
 	floor_rigid_node->add_shape(floor_shape);
 
-	NodePath np_ground = window->get_render().attach_new_node(floor_rigid_node);
-	np_ground.set_pos(0, 0, -2);
+	NodePath groundNp = window->get_render().attach_new_node(floor_rigid_node);
+	groundNp.set_pos(0, 0, -2);
 	get_physics_world()->attach(floor_rigid_node);
 
 	// Dynamic world stuff.
@@ -99,18 +101,18 @@ int main(int argc, char *argv[]) {
 	box_rigid_node->set_mass(1.0f); // Gravity affects this rigid node.
 	box_rigid_node->add_shape(box_shape);
 
-	NodePath np_box = window->get_render().attach_new_node(box_rigid_node);
-	NodePath np_box_model = window->load_model(framework.get_models(), "assets/rocket.bam");
-	np_box_model.set_pos(0, 0, 0); // This is the positin within "np_box"
-	np_box_model.reparent_to(np_box);
+	NodePath boxNp = window->get_render().attach_new_node(box_rigid_node);
+	NodePath boxNpModel = window->load_model(framework.get_models(), "assets/rocket.bam");
+	boxNpModel.set_pos(0, 0, 0); // This is the positin within "boxNp"
+	boxNpModel.reparent_to(boxNp);
 
-	np_box.set_pos(0, 0, 5);
+	boxNp.set_pos(0, 0, 5);
 	get_physics_world()->attach(box_rigid_node);
 
 	// If we specify custom data instead of NULL, it will be passed as the second argument
 	// to the task function.
 	taskMgr->add(new GenericAsyncTask("Scene update", &update_scene, nullptr));
-  	taskMgr->add(new GenericAsyncTask("Spins the camera", &spinCameraTask, &np_box));
+  	taskMgr->add(new GenericAsyncTask("Spins the camera", &spinCameraTask, &boxNp));
 
 	framework.main_loop();
 	framework.close_framework();
