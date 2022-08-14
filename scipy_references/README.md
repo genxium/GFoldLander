@@ -32,7 +32,7 @@ Pros
 - no requirement for the problem to be "regular", i.e. no "constraint qualification"
 
 Cons
-- no guarantee on finding the solution which satisfies all constraints if one existed, e.g. depending on initial guess chosen
+- no guarantee on finding the solution which satisfies all constraints if one exists, e.g. depending on initial guess chosen
 
 ### 1.2.2 KKT conditions method
 Watch 
@@ -41,10 +41,10 @@ Watch
 
 Although during the theoretical development some coefficients are introduced to take constraints into objective, making it a little similar to `1.2.1`, _the aftermath is quite different_. 
 
-Kindly note that `KKT conditions method` is only applicable to `regular problems` which satisfy `some constraint qualifications`. The term `some constraint qualifications` might seem vague at a first glance but it should be analyzed case by case.     
+Kindly note that `KKT conditions method` is only applicable to `regular problems` which satisfy `some constraint qualifications`. Whether or not a problem is `regular` should be analyzed case by case.     
 
 Pros
-- guarantee on finding the solution which satisfies all constraints if one existed
+- guarantee on finding the solution which satisfies all constraints if one exists
 
 Cons
 - there're requirements of `constraint qualifications` for the problem to be "regular", i.e. such that the `duality gap = 0`
@@ -57,7 +57,7 @@ g[i](x) + s[i]^2 = 0
 , then apply `1.1` to seek solution for all possible combinations of `subset(g(x)) = 0`. 
 
 Pros
-- guarantee on finding the solution which satisfies all constraints if one existed
+- guarantee on finding the solution which satisfies all constraints if one exists
 
 Cons
 - there're requirements of `constraint qualifications` for the problem to be "regular", i.e. such that the `duality gap = 0`
@@ -68,5 +68,3 @@ Cons
 With all of `section 1` understood, we might have an objective `f(x)` too complicated for finding the gradient analytically, therefore it's possible to approximate `f(x)` locally as a `quadratic objective`, then apply the methods from `section 1` sequentially (i.e. many times) to find an answer. Please watch [this tutorial](https://pan.baidu.com/s/1Md9sl5gzTbQRz983sY_dNg) (nwxj) for how "unconstrained SLSQP" works in example. 
 
 I somehow found this [C translation for the SLSQP impl](http://mad.web.cern.ch/mad/releases/madng/madng-git/lib/nlopt/src/algs/slsqp/slsqp.c), where the [original impl is by f-lang](https://github.com/scipy/scipy/blob/main/scipy/optimize/slsqp/slsqp_optmz.f).
-
-

@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 	window->setup_trackball();
 
 	// Light
-	// [WARNING] without any lighting "assets/rocket.bam" would look totally white, possibly due to its material choice?
+	// [WARNING] without any lighting "assets/rocket.bam" would look totally white, because a "colored material" would only show its color when illuminated. In contrast, a "textured material" can show its color even if not illuminated, but it's not a common feature in CAD software.
 	PT(DirectionalLight) d_light;
 	d_light = new DirectionalLight("d_light"); 
 	d_light->set_direction(LVecBase3(1, 1, -1));
