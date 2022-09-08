@@ -28,7 +28,7 @@ class Terrain:
         shape = BulletHeightfieldShape(heightmapImg, self.heightScale, ZUp)
         shape.setUseDiamondSubdivision(False)
 
-        np = worldNP.attachNewNode(BulletRigidBodyNode('Heightfield'))
+        np = worldNP.attachNewNode(BulletRigidBodyNode('myterrainhtfld'))
         np.node().addShape(shape)
         np.setPos(0, 0, 0)
         np.setCollideMask(BitMask32.allOn())

@@ -67,6 +67,14 @@ int main(int argc, char *argv[]) {
 	window->enable_keyboard();
 	window->setup_trackball();
 
+    PT(BulletDebugNode) btDebugger = new BulletDebugNode("Debug");
+    btDebugger->show_wireframe(true);
+    btDebugger->show_bounding_boxes(true);
+    btDebugger->show_constraints(false);
+    btDebugger->show_normals(false);
+	NodePath debugNp = window->get_render().attach_new_node(btDebugger);
+    debugNp.show();
+
 	// Light
 	// [WARNING] without any lighting "assets/rocket.bam" would look totally white, because a "colored material" would only show its color when illuminated. In contrast, a "textured material" can show its color even if not illuminated, but it's not a common feature in CAD software.
 	PT(DirectionalLight) d_light;
@@ -84,7 +92,10 @@ int main(int argc, char *argv[]) {
 	// Make physics simulation.
 	// Static world stuff.
 	get_physics_world()->set_gravity(0, 0, -9.81f);
+    get_physics_world()->set_debug_node(btDebugger);
 
+    /*
+    // Add flat floor
 	PT(BulletPlaneShape) floor_shape = new BulletPlaneShape(LVecBase3(0, 0, 1), 1);
 	PT(BulletRigidBodyNode) floor_rigid_node = new BulletRigidBodyNode("Ground");
 
@@ -93,6 +104,10 @@ int main(int argc, char *argv[]) {
 	NodePath groundNp = window->get_render().attach_new_node(floor_rigid_node);
 	groundNp.set_pos(0, 0, -2);
 	get_physics_world()->attach(floor_rigid_node);
+    */
+
+    // Add non-flat floor a.k.a. terrain
+	Terrain *terrain = new Terrain(get_physics_world(), window->get_render(), camera);
 
 	// Dynamic world stuff.
 	PT(BulletBoxShape) box_shape = new BulletBoxShape(LVecBase3(0.5, 0.5, 0.5));
@@ -116,6 +131,7 @@ int main(int argc, char *argv[]) {
 
 	framework.main_loop();
 	framework.close_framework();
+    delete terrain;
 
 	return 0;
 }

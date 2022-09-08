@@ -12,7 +12,7 @@ public:
     // [WARNING] A "GeoMipTerrain" instance is NOT a subclass of "class ReferenceCount", i.e. couldn't be used as PT(GeoMipTerrain).
     GeoMipTerrain* geoMipIns = nullptr;
 
-    Terrain(BulletWorld* world, NodePath* pWorldNp, NodePath* pCamera);
+    Terrain(BulletWorld* world, NodePath worldNp, NodePath camera);
     virtual ~Terrain();
 
     double calcRectifiedZ(double x, double y);

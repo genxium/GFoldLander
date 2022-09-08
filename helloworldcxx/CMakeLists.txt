@@ -76,4 +76,6 @@ add_custom_command(
         TARGET ${TARGET_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory ${RT_PATH}/assets
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/assets/rocket.bam ${RT_PATH}/assets         
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/assets/heightmap.png ${RT_PATH}/assets         
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/assets/heightmapcolor.jpg ${RT_PATH}/assets         
 )
