@@ -2,6 +2,8 @@ This is the source code of our paper [A Fuel-Optimal Landing Guidance and Invers
 
 Regardless of many TODO items still pending in the current implementation, we decided to go open source aiming at helping people (especially students) get an easy start on this topic -- you can refer to this repo for setting up the simulation environment and our algorithm for basic closed-loop control implementation :)  
 
+If you're a student or lab person who's working on a similar topic at a very early stage, welcome to drop me a message at genxium@outlook.com for discussion.  
+
 Happy simulating!
 
 ### Prerequisites
