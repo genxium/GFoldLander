@@ -1,4 +1,4 @@
-According to this guide from [gssrr](https://gssrr.org/), there're a few low cost & low bar journal to choose from. However, the whole `gssrr` is included in [this list also lists some bad journals to avoid](https://beallslist.net/). The term `APC` stands for `article processing charge` which includes "peer review fee" but might not include the publication fee.
+According to this guide from [gssrr](https://gssrr.org/), there're a few low cost & low bar journal to choose from. However, the whole `gssrr` is included in [this list of some bad journals to avoid](https://beallslist.net/). The term `APC` stands for `article processing charge` which includes "peer review fee" but might not include the publication fee.
 
 - [arxiv](https://arxiv.org/)
     - Free of charge for both review and publication, but [requires endorser in the relevant field for the first publication](https://arxiv.org/help/endorsement).
