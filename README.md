@@ -1,4 +1,4 @@
-This is the source code of our paper [A Fuel-Optimal Landing Guidance and Inverse Kinematics Coupled PID Control Solution for Power-Descent Vertical Landing in Simulation](http://arqiipubl.com/ojs/index.php/AMS_Journal/article/view/354), a copy of the paper with typo corrections is also attached in this repo. 
+This is the source code of our paper [A Fuel-Optimal Landing Guidance and Inverse Kinematics Coupled PID Control Solution for Power-Descent Vertical Landing in Simulation](http://arqiipubl.com/ojs/index.php/AMS_Journal/article/view/354), a copy of the paper with typo corrections is also attached in this repo under `<root>/the_paper/`.  
 
 Regardless of many TODO items still pending in the current implementation, we decided to go open source aiming at helping people (especially students) get an easy start on this topic -- you can refer to this repo for setting up the simulation environment and our algorithm for basic closed-loop control implementation :)  
 
